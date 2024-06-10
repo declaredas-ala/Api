@@ -1,25 +1,25 @@
 from flask import Blueprint, request
-from flask_cors import cross_origin
-from app.controller.auth_controller import register_user, login_user, logout_user
+from flask_jwt_extended import jwt_required
+from app.controller.auth_controller import login_user, logout_user, register_user
 
 auth_bp = Blueprint("auth_bp", __name__)
 
 
-@auth_bp.route("/auth/register", methods=["POST"])
-@cross_origin(origin="http://localhost:5173", headers=["Content-Type", "Authorization"])
+@auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    return register_user(data)
+    response, status_code = register_user(data)
+    return response, status_code
 
 
-@auth_bp.route("/auth/login", methods=["POST"])
-@cross_origin(origin="*", headers=["Content-Type", "Authorization"])
+@auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    return login_user(data)
+    response = login_user(data)
+    return response
 
 
-@auth_bp.route("/auth/logout", methods=["POST"])
-@cross_origin(origin="http://localhost:5173", headers=["Content-Type", "Authorization"])
+@jwt_required(locations=["cookies"])
+@auth_bp.route("/logout", methods=["POST"])
 def logout():
     return logout_user()

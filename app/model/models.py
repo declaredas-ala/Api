@@ -28,5 +28,6 @@ class ApiCall(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     api_endpoint = Column(String(255), nullable=False)
     call_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
-    success = Column(TINYINT(1), nullable=False)
     response_code = Column(Integer)
+    response = Column(String(255))
+    type = Column(String(10))

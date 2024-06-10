@@ -1,6 +1,11 @@
 # app/controller/main_controller.py
+from flask import request, jsonify
 from app.model import db
 from app.model.models import User
+import jwt
+
+# Secret key used to decode the access token (ensure this matches your JWT secret)
+SECRET_KEY = "your_jwt_secret_key"
 
 
 # Create a new user
@@ -65,3 +70,55 @@ def activate_user(user_id):
         return user
     else:
         return None
+
+
+# Extract user ID from access token
+def get_user_id_from_token():
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, "ala123", algorithms=["HS256"])
+        return payload.get("user_id")
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+# Get user profile
+def get_profile():
+    user_id = get_user_id_from_token()
+    if user_id:
+        user = get_user_by_id(user_id)
+        if user:
+            return jsonify(
+                {
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "is_admin": user.is_admin,
+                    "is_active": user.is_active,
+                }
+            ), 200
+    return jsonify({"message": "User not found or invalid token"}), 404
+
+
+# Update user profile
+def update_profile(data):
+    user_id = get_user_id_from_token()
+    if user_id:
+        user = update_user(user_id, data)
+        if user:
+            return jsonify(
+                {
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "is_admin": user.is_admin,
+                    "is_active": user.is_active,
+                }
+            ), 200
+    return jsonify({"message": "User not found or invalid token"}), 404

@@ -8,6 +8,7 @@ from app.controller.main_controller import (
     delete_user,
     activate_user,
 )
+from app.controller.auth_controller import get_profile, update_profile
 
 main_bp = Blueprint("main_bp", __name__)
 
@@ -110,3 +111,14 @@ def activate_user_route(user_id):
         )
     else:
         return jsonify({"error": "User not found"}), 404
+
+
+# Get user profile
+@main_bp.route("/profile", methods=["GET"])
+def profile():
+    return get_profile()
+
+
+@main_bp.route("/profile", methods=["PUT"])
+def update_profile_route():
+    return update_profile()
